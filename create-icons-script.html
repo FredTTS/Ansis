@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generera Ikoner för Ansis appen</title></head>
+<body>
+<h2>Genererar ikoner...</h2>
+<canvas id="canvas192" width="192" height="192"></canvas>
+<canvas id="canvas512" width="512" height="512"></canvas>
+<script>
+function createIcon(canvas, size) {
+    const ctx = canvas.getContext('2d');
+    
+    // Bakgrund - grön gradient
+    const gradient = ctx.createLinearGradient(0, 0, size, size);
+    gradient.addColorStop(0, '#15803d');
+    gradient.addColorStop(1, '#14532d');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    
+    // Golf emoji
+    ctx.font = `${size * 0.6}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⛳', size/2, size/2);
+}
+
+createIcon(document.getElementById('canvas192'), 192);
+createIcon(document.getElementById('canvas512'), 512);
+
+// Instruktioner
+document.body.innerHTML += '<p>Högerklicka på varje ikon och välj "Spara bild som..."</p><p>Spara som icon-192.png respektive icon-512.png</p>';
+</script>
+</body>
+</html>

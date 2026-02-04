@@ -1,41 +1,65 @@
 const { useState, useEffect } = React;
 
-// --- API NYCKEL ---
 const WEATHER_API_KEY = "99d688898682ba4fc727529cd0fbd7ac";
 
-// --- IKONER ---
-const Target = ({ size = 24 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
-const MapPin = ({ size = 24 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-const Sparkles = ({ size = 24 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 3 1.912 5.886 6.182.01-5 3.65 1.901 5.889L12 14.775l-5 3.66 1.901-5.89-5-3.649 6.182-.01L12 3z"/></svg>;
-const Navigation = ({ size = 24, style }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={style}><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>;
-const Refresh = ({ size = 16 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6m12-4a9 9 0 0 1-15 6.7L3 16"/></svg>;
-
 const AnsisApp = () => {
-  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('activeTab') || 'play');
-  const [lastFetch, setLastFetch] = useState(0);
-  const [isManual, setIsManual] = useState(false);
+  const [activeTab, setActiveTab] = useState('play');
+  const [weather, setWeather] = useState({ windSpeed: 0, windDirection: 0, temperature: 20 });
   
-  const [holes] = useState([
-    { number: 1, par: 4, index: 12, length: 354, flagLat: 59.3293, flagLon: 18.0686 },
-    { number: 2, par: 5, index: 8, length: 422, flagLat: 59.3295, flagLon: 18.0690 },
-    { number: 3, par: 5, index: 6, length: 469, flagLat: 59.3297, flagLon: 18.0695 },
-    { number: 4, par: 3, index: 16, length: 116, flagLat: 59.3300, flagLon: 18.0700 },
-    { number: 5, par: 5, index: 4, length: 446, flagLat: 59.3305, flagLon: 18.0705 },
-    { number: 6, par: 4, index: 14, length: 332, flagLat: 59.3310, flagLon: 18.0710 },
-    { number: 7, par: 4, index: 18, length: 238, flagLat: 59.3315, flagLon: 18.0715 },
-    { number: 8, par: 4, index: 2, length: 327, flagLat: 59.3320, flagLon: 18.0720 },
-    { number: 9, par: 3, index: 10, length: 150, flagLat: 59.3325, flagLon: 18.0725 },
-    { number: 10, par: 4, index: 5, length: 280, flagLat: 59.3330, flagLon: 18.0730 },
-    { number: 11, par: 4, index: 1, length: 346, flagLat: 59.3335, flagLon: 18.0735 },
-    { number: 12, par: 5, index: 9, length: 431, flagLat: 59.3340, flagLon: 18.0740 },
-    { number: 13, par: 3, index: 15, length: 152, flagLat: 59.3345, flagLon: 18.0745 },
-    { number: 14, par: 5, index: 11, length: 468, flagLat: 59.3350, flagLon: 18.0750 },
-    { number: 15, par: 3, index: 17, length: 116, flagLat: 59.3355, flagLon: 18.0755 },
-    { number: 16, par: 4, index: 3, length: 334, flagLat: 59.3360, flagLon: 18.0760 },
-    { number: 17, par: 3, index: 13, length: 133, flagLat: 59.3365, flagLon: 18.0765 },
-    { number: 18, par: 4, index: 7, length: 333, flagLat: 59.3370, flagLon: 18.0770 }
-  ]);
+  const fetchWeather = async () => {
+    try {
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=59.32&lon=18.06&appid=${WEATHER_API_KEY}&units=metric`);
+      const data = await res.json();
+      if (data && data.wind) {
+        setWeather({
+          windSpeed: Math.round(data.wind.speed),
+          windDirection: data.wind.deg,
+          temperature: Math.round(data.main.temp)
+        });
+      }
+    } catch (e) { console.error("Väderfel:", e); }
+  };
 
-  const [clubs, setClubs] = useState(() => {
-    const saved = localStorage.getItem('clubs');
-    return saved ? JSON.parse(saved)
+  useEffect(() => {
+    fetchWeather();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans">
+      <div className="bg-green-700 text-white p-6 text-center shadow-lg">
+        <h1 className="text-2xl font-black italic">⛳ ANSIS CADDIE</h1>
+      </div>
+      
+      <div className="p-4 max-w-md mx-auto">
+        <div className="bg-white p-6 rounded-3xl shadow-xl border-2 border-green-600 text-center mb-4">
+          <div className="text-sm font-black text-green-700 uppercase tracking-widest mb-2">Live Väder</div>
+          <div className="flex justify-around items-center">
+            <div>
+              <div className="text-xs text-gray-400 font-bold uppercase">Vind</div>
+              <div className="text-2xl font-black">{weather.windSpeed} m/s</div>
+            </div>
+            <div style={{ transform: `rotate(${weather.windDirection}deg)` }} className="text-3xl">⬆️</div>
+            <div>
+              <div className="text-xs text-gray-400 font-bold uppercase">Temp</div>
+              <div className="text-2xl font-black">{weather.temperature}°C</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-green-800 text-white p-10 rounded-[2.5rem] text-center shadow-2xl mb-6">
+          <div className="text-8xl font-black">150</div>
+          <div className="text-xs font-black uppercase tracking-[0.3em] opacity-60">Meter kvar</div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setActiveTab('play')} className={`p-4 rounded-2xl font-black uppercase text-xs ${activeTab === 'play' ? 'bg-green-700 text-white' : 'bg-white text-gray-400'}`}>Spela</button>
+            <button onClick={() => setActiveTab('clubs')} className={`p-4 rounded-2xl font-black uppercase text-xs ${activeTab === 'clubs' ? 'bg-green-700 text-white' : 'bg-white text-gray-400'}`}>Klubbor</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Starta appen
+const rootElement = document.getElementById('root');
+ReactDOM.render(<AnsisApp />, rootElement);
